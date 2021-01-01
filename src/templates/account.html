@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style type="text/css">
+	.image-container{
+		max-width: 250px;
+		height: auto;
+	}
+	.field-heading{
+		color: var(--secondary-text-color);
+	}
+	.icon-container:hover {
+		opacity: 0.3;
+		cursor: pointer;
+	}
+	.dropdown-toggle::after { 
+		content: none; 
+	}
+	.card{
+		border-radius: 12px;
+	}
+	.material-icons{
+		font-size: 30px;
+	}
+	.material-icons:hover{
+		cursor: pointer;
+	}
+	.confirm-friend-request{
+		color: green;
+	}
+	.confirm-friend-request:hover {
+		opacity: 0.3;
+	}
+	.decline-friend-request:hover {
+		opacity: 0.3;
+	}
+	.decline-friend-request{
+		color: red;
+	}
+	.message-btn-text{
+		font-weight: 500;
+	}
+</style>
+
+
+
+
+<div class="container-fluid">
+	<div class="d-flex flex-row justify-content-center flex-wrap align-items-start">
+		<div class="card profile-card m-2">
+		  <div class="card-body">
+		  	<div class="d-flex flex-column justify-content-center p-4">
+		  		<div class="image-container mx-auto mb-4">
+					{% if request.user.profile_image.url is None %}
+		  			<img class="d-block border border-dark rounded-circle img-fluid mx-auto profile-image" alt="logo" id="id_profile_image" src="{% static 'images/dummy_image.png' %}">
+					{% else %}
+					<img class="d-block border border-dark rounded-circle img-fluid mx-auto profile-image" alt="logo" id="id_profile_image" src="{{profile_image}}">
+					{% endif %}
+		  		</div>
+                
+
+		  		<!--following section-->
+		  		{% if is_self %}
+				    <span>Followers: {{followers.count }}</span>
+				    <br>
+				    <span>Following: {{logged_user_following.another_user.count }}</span>
+				    {% else %}
+				    <span>Follower: {{followers.count}}</span>
+				    <br>
+				    <span>Following: {{following.another_user.count }}</span>
+				{% endif %}
+
+
+
+				{% if not is_self %}
+				<div class="container">
+				<form action="{% url 'account:follow-user' user_id=id %}" method="POST">
+					{% csrf_token %}
+					{% if is_followed %}
+					<input type="hidden" name="user_id" value="{{id}}">
+					<button type="submit" class="btn btn-primary">unfollow</button>
+					{% else %}
+					<input type="hidden" name="user_id" value="{{id}}">
+					<button type="submit" class="btn btn-danger">follow</button>
+					{% endif %}
+				</form>
+			</div>
+				{% endif %}
+
+				<!--end following section-->
+				
+				
+		  		<p class="mt-4 mb-1 field-heading">Email</p>
+		  		{%  if is_self %}
+		  			<h5>{{email}}</h5>
+		  		{% else %}
+		  			{% if hide_email %}
+			  			<h5>**********</h5>
+			  		{% else %}
+			  			<h5>{{email}}</h5>
+			  		{% endif %}
+			  	{% endif %}
+		  		<p class="mt-4 mb-1 field-heading">Username</p>
+		  		<h5>{{username}}</h5>
+				<p class="mt-4 mb-1 field-heading">Bio</p>
+		  		<h5>{{bio}}</h5>
+
+				{% if link is empty %}
+				<p class="mt-4 mb-1 field-heading">Link</p>
+				<h6><small></small></h6>
+				{% else %}
+				<p class="mt-4 mb-1 field-heading">Link</p>
+				<h6><a href="{{link}}"><small>{{link}}</small></a></h6>
+				{% endif %}
+
+
+		  		<!-- If Auth user is viewing their own profile -->
+		  		{% if is_self %}
+		  		<a  class="mt-4 btn btn-primary" href="{% url 'account:edit' user_id=id %}">Update</a>
+				<div class="d-flex flex-column mt-4">
+					<a class="m-auto" href="{% url 'password_change' %}">Change password</a>
+				</div>
+		  		{% endif %}
+		  	</div>
+		  </div>
+		</div>
+
+		        {% if is_self %}
+		        {% else %}
+				 <div class="d-flex flex-row align-items-center btn btn-primary m-2 px-4" onclick="createOrReturnPrivateChat('{{id}}')">
+					<span class="material-icons m-auto">
+					message
+					</span>
+					<span class="message-btn-text m-auto pl-2">Message</span>
+				</div> 
+				{% endif %}
+		</div>
+	</div>
+
+
+{% endblock %}
